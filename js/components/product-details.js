@@ -14,17 +14,23 @@ const DETAILS_TEMPLATE = `
       {{else if product}}
         <div class="row g-3 align-items-start">
           <div class="col-12 col-md-4">
-            <img src="{{product.image}}" alt="{{product.title}}" class="img-fluid border rounded p-3" style="object-fit:contain; max-height:280px;">
+            <img src="{{product.image}}" alt="{{product.title}}" class="img-fluid border rounded p-3 card-img-top" style="object-fit:contain; max-height:280px;">
           </div>
           <div class="col-12 col-md-8">
             <h6 class="mb-2">{{product.title}}</h6>
+
             <p class="mb-1">
               <span class="badge text-bg-secondary">{{product.category}}</span>
             </p>
-            <p class="fs-5 fw-semibold mb-1">{{formatPrice product.price}} $</p>
+
+            <p class="fs-5 fw-semibold mb-1">{{currency product.price}}</p>
+
             {{#if product.rating}}
-              <p class="text-muted mb-2">Betyg: {{product.rating.rate}} ({{product.rating.count}} omdömen)</p>
+              <p class="text-muted mb-2 small">
+                {{stars product.rating.rate}} ({{product.rating.count}} omdömen)
+              </p>
             {{/if}}
+
             <p class="mb-3">{{product.description}}</p>
 
             <div class="d-flex gap-2 align-items-center">
@@ -44,21 +50,33 @@ class ProductDetails extends HTMLElement {
   constructor() {
     super();
     this._state = { loading: false, error: "", product: null };
-    // helper: price formatting
-    Handlebars.registerHelper('formatPrice', (val) => {
-      try { return Number(val).toFixed(2); } catch { return val; }
-    });
+
+    // --- Helpers (register once, safely) ---
+    if (!Handlebars.helpers.currency) {
+      Handlebars.registerHelper('currency', (n) =>
+        new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
+          .format(Number(n))
+      );
+    }
+    if (!Handlebars.helpers.stars) {
+      Handlebars.registerHelper('stars', (rating = 0) => {
+        const r = Math.max(0, Math.min(5, Math.round(Number(rating))));
+        // Returns something like "★★★★☆"
+        return '★★★★★☆☆☆☆☆'.slice(5 - r, 10 - r);
+      });
+    }
+
     this._template = Handlebars.compile(DETAILS_TEMPLATE);
 
     // Listen globally for SelectedProduct
     document.addEventListener('SelectedProduct', (e) => {
-      // You already have the full product object from ProductsList
       this._showProduct(e.detail.product);
     });
   }
 
   connectedCallback() {
     this._render();
+
     // Delegate click for Add to Cart
     this.addEventListener('click', (e) => {
       if (e.target && e.target.id === 'btnAddToCart') {
