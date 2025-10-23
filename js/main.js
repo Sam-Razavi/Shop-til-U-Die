@@ -99,3 +99,9 @@ document.addEventListener('ViewProductFromCart', async (e) => {
     console.error(err);
   }
 });
+
+document.addEventListener('CartUpdated', () => {
+  const badge = document.getElementById('cartCount');
+  badge?.classList.add('cart-pop');
+  setTimeout(()=>badge?.classList.remove('cart-pop'), 250);
+});
