@@ -75,3 +75,27 @@ document.addEventListener('AddedToCart', (e) => {
   const title = e?.detail?.product?.title;
   showAddedToast(title ? `"${title}" lades i kundvagnen.` : undefined);
 });
+
+document.addEventListener('ViewProductFromCart', async (e) => {
+  const id = e.detail.id;
+  try {
+    const res = await fetch(`https://fakestoreapi.com/products/${id}`);
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
+    const product = await res.json();
+
+    document.dispatchEvent(new CustomEvent('SelectedProduct', {
+      detail: { product },
+      bubbles: true,
+      composed: true
+    }));
+
+    if (typeof showView === 'function') {
+      showView('view-details'); // if you use the tiny router
+    } else {
+      document.querySelector('product-details')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  } catch (err) {
+    console.error(err);
+  }
+});

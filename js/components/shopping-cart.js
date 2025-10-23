@@ -21,9 +21,17 @@ const CART_TEMPLATE = `
                 <tr data-id="{{id}}">
                   <td>
                     <div class="d-flex align-items-center gap-2">
-                      <img src="{{image}}" alt="{{title}}" style="width:48px; height:48px; object-fit:contain;" class="border rounded p-1">
+                      <img
+                        src="{{image}}"
+                        alt="{{title}}"
+                        style="width:48px; height:48px; object-fit:contain;"
+                        class="border rounded p-1"
+                        data-action="view"
+                      >
                       <div>
-                        <div class="fw-semibold small">{{title}}</div>
+                        <a href="#"
+                           class="fw-semibold small text-decoration-none"
+                           data-action="view">{{title}}</a>
                         <div class="text-muted small">{{category}}</div>
                       </div>
                     </div>
@@ -68,10 +76,12 @@ class ShoppingCart extends HTMLElement {
     const saved = localStorage.getItem('cart-items');
     this._items = saved ? JSON.parse(saved) : [];
     // helpers
-    Handlebars.registerHelper('formatPrice', (v) => {
-      const n = Number(v);
-      return Number.isFinite(n) ? n.toFixed(2) : v;
-    });
+    if (!Handlebars.helpers.formatPrice) {
+      Handlebars.registerHelper('formatPrice', (v) => {
+        const n = Number(v);
+        return Number.isFinite(n) ? n.toFixed(2) : v;
+      });
+    }
     this._template = Handlebars.compile(CART_TEMPLATE);
 
     // Listen globally for AddedToCart
@@ -93,6 +103,17 @@ class ShoppingCart extends HTMLElement {
         if (action === 'inc') this._changeQty(id, +1);
         if (action === 'dec') this._changeQty(id, -1);
         if (action === 'remove') this._remove(id);
+
+        if (action === 'view') {
+          // Bubble an intent event with the product id so main.js can fetch + show details
+          this.dispatchEvent(new CustomEvent('ViewProductFromCart', {
+            detail: { id },
+            bubbles: true,
+            composed: true
+          }));
+          e.preventDefault();
+          return;
+        }
       }
 
       if (e.target?.id === 'btnClear') {
