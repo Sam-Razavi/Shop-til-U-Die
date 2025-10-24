@@ -5,19 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Shop ’til u die – Prototype</title>
 
-    <!-- Bootstrap 5 CSS -->
+    <!-- Bootstrap 5 CSS (färdiga stilar så sidan ser bra ut direkt) -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
 
-    <!-- Handlebars (for templating later) -->
+    <!-- Handlebars (mallmotor för att stoppa in data i HTML-mallar) -->
     <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
 
-    <!-- Custom styles -->
+    <!-- Egna stilar -->
     <link rel="stylesheet" href="./css/styles.css" />
   </head>
+  <!-- bg-light ger en ljus bakgrundsfärg -->
   <body class="bg-light">
+    <!-- "Hoppa till innehåll": bra för tangentbords- och skärmläsaranvändare -->
     <a
       href="#main"
       class="visually-hidden-focusable btn btn-light position-absolute m-2"
@@ -25,37 +27,56 @@
       Hoppa till innehåll
     </a>
 
+    <!-- Översta menyraden (navbar) -->
     <nav class="navbar navbar-dark bg-dark">
       <div class="container d-flex align-items-center justify-content-between">
-        <a class="navbar-brand" href="index.html">Shop ’til u die</a>
+        <!-- Varumärkeslänk. Klick leder till startsidan (laddar om index.html) -->
+        <a class="navbar-brand" href="#" id="linkHome">Shop ’til u die</a>
 
+        <!-- Kundvagnsknapp i navbar. Visar antal varor i badge anpassad till skärmläsare-->
         <a
           href="#"
           id="linkCart"
           class="btn btn-sm btn-outline-light position-relative"
+          aria-label="Öppna kundvagn"
         >
           🛒 Cart
-          <span id="cartCount" class="badge bg-success ms-1">0</span>
+          <span
+            id="cartCount"
+            class="badge bg-success ms-1"
+            aria-live="polite"
+            aria-atomic="true"
+            >0</span
+          >
         </a>
       </div>
     </nav>
 
+    <!-- Huvudinnehåll. Här visar vi våra webbkomponenter -->
     <main id="main" class="container py-4">
+      <!-- Första vyn: kategorier (synlig från start) -->
       <section id="view-categories">
+        <!-- Egen komponent som listar kategorier -->
         <categories-list></categories-list>
       </section>
+
+      <!-- Produkter (dold från start med d-none). Visas när en kategori väljs -->
       <section id="view-products" class="d-none">
         <products-list></products-list>
       </section>
+
+      <!-- Produktdetaljer (dold från start). Visas när en produkt väljs -->
       <section id="view-details" class="d-none">
         <product-details></product-details>
       </section>
+
+      <!-- Kundvagn (dold från start). Visas när användaren vill se varukorgen -->
       <section id="view-cart" class="d-none">
         <shopping-cart></shopping-cart>
       </section>
     </main>
 
-    <!-- Toast container -->
+    <!-- Toast (liten popup) som bekräftar "Lagd i kundvagn" -->
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080">
       <div
         id="addedToast"
@@ -78,10 +99,10 @@
       </div>
     </div>
 
-    <!-- Bootstrap JS -->
+    <!-- Bootstrap JS (behövs för t.ex. toasten) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Our JS as module -->
+    <!-- Vår huvud-JS som startar appen och kopplar ihop komponenterna -->
     <script type="module" src="./js/main.js"></script>
   </body>
 </html>
